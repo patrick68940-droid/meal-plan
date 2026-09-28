@@ -118,6 +118,8 @@ h1.title{font:600 26px/1.08 'Montserrat',sans-serif;margin:2px 0 3px;letter-spac
 @media (max-width:380px){h1.title{font-size:20px}.app{padding-left:12px;padding-right:12px}}
 @media (max-height:640px){.hero,.tagline{display:none}}
 @media (max-height:540px){.macros{display:none}}
+.mic{font:700 12px/1.3 'Montserrat',sans-serif;color:var(--hue)}
+.foot{font:500 12.5px/1.4 'Montserrat',sans-serif;color:var(--muted);padding:8px 0}
 </style>
 </head>
 <body>
@@ -170,6 +172,7 @@ const ICONS = {
     <rect x="12" y="30" width="62" height="30" rx="15" fill="url(#wr1)" transform="rotate(-9 44 46)"/>
     <g transform="rotate(-9 44 46)"><circle cx="34" cy="42" r="4.5" fill="#C0392B"/><circle cx="47" cy="46" r="4.5" fill="#5F9450"/>
     <circle cx="40" cy="52" r="3.5" fill="#F4D35E"/><circle cx="56" cy="40" r="3.5" fill="#DDE26A"/></g></svg>`,
+  om:`<svg viewBox="0 0 88 88"><ellipse cx="44" cy="54" rx="34" ry="19" fill="#DDD7C4"/><ellipse cx="44" cy="50" rx="34" ry="18" fill="#F4F1E6"/><path d="M14 50c2-16 18-24 30-24s28 8 30 24c-10 8-50 8-60 0z" fill="#F6C945"/><path d="M14 50c2-16 18-24 30-24s28 8 30 24" fill="none" stroke="#E0A81F" stroke-width="3"/><circle cx="34" cy="42" r="3" fill="#6E9F4E"/><circle cx="48" cy="38" r="2.6" fill="#6E9F4E"/><circle cx="56" cy="46" r="3" fill="#6E9F4E"/><circle cx="42" cy="49" r="2.4" fill="#C0392B"/></svg>`,
   sh:`<svg viewBox="0 0 88 88"><defs><linearGradient id="sh1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4D35E"/><stop offset="1" stop-color="#D9A62B"/></linearGradient></defs>
     <rect x="28" y="12" width="32" height="12" rx="4" fill="#8C5A2A"/>
     <path d="M30 24h28l5 42a9 9 0 0 1-9 9H34a9 9 0 0 1-9-9z" fill="#8C5A2A"/>
@@ -177,14 +180,24 @@ const ICONS = {
     <rect x="29" y="46" width="30" height="7" fill="#fff" opacity=".4"/>
     <circle cx="38" cy="60" r="3" fill="#B4783C"/><circle cx="49" cy="64" r="3" fill="#B4783C"/></svg>`,
 };
+// Three rotating dinners: the pesto omelette + two dinners from the original menu. Eggs only on egg-free days.
+const DIN = {
+  A:{label:"Dinner",title:"2-Egg Pesto Omelette",tag:"Pesto omelette, grilled veggies, toast.",cat:"om",p:22,c:42,f:24,k:480,fib:7,mic:"Choline · B12 · vit C",
+     ing:[["Eggs","2 large"],["Basil pesto","1 tbsp (~15g)"],["Olive oil / butter","1 tsp"],["Grilled veggies","1 cup mixed"],["Multigrain toast","2 slices (~60g)"]],
+     note:"Veggie mix: zucchini, bell peppers, cherry tomatoes, mushrooms. Whole wheat or multigrain bread."},
+  B:{label:"Dinner",title:"Besan Cheela (2 pcs)",tag:"Savory crepes, paneer-filled.",cat:"wr",p:24,c:52,f:16,k:450,mic:"Folate · iron · calcium",
+     ing:[["Besan cheela","2 pcs"],["Paneer","50g"],["Veggies","—"]]},
+  C:{label:"Dinner",title:"Chickpea & Paneer Salad",tag:"Crunchy, cool, protein-forward.",cat:"sl",p:25,c:38,f:18,k:410,mic:"Calcium · folate · vit C",
+     ing:[["Paneer","70g"],["Chickpeas","60g"],["Lettuce","—"],["Veggies","—"]]},
+};
+const PLAN = {Monday:"C",Tuesday:"A",Wednesday:"C",Thursday:"B",Friday:"B",Saturday:"C",Sunday:"A"};
 const DATA = {
   Monday:[
     {label:"Breakfast",title:"Protein Smoothie",tag:"Simple ingredients, engineered nutrition.",cat:"sm",p:38,c:68,f:14,k:550,
      ing:[["Bananas","2"],["Oats","40g"],["Protein","1 full scoop"],["Milk","200ml"],["Nuts","—"]]},
-    {label:"Lunch",title:"Burrito Bowl",tag:"Loaded, balanced, built to last.",cat:"bw",p:42,c:78,f:12,k:580,
-     ing:[["Chicken","80g"],["Rajma","½ cup"],["Rice","1 cup"],["Hung curd","100g"],["Veggies","—"]]},
-    {label:"Dinner",title:"Large Protein Salad",tag:"Light on carbs, generous elsewhere.",cat:"sl",p:25,c:42,f:20,k:450,
-     ing:[["Paneer","70g"],["Mung sprouts","½ cup"],["Chana","½ cup"],["Lettuce","—"],["Tzatziki","—"]]},
+    {label:"Lunch",title:"Burrito Bowl",tag:"Loaded, balanced, built to last.",cat:"bw",p:43,c:88,f:12,k:625,
+     ing:[["Chicken","80g"],["Rajma","½ cup"],["Rice","1 cup"],["Hung curd","100g"],["Corn","¼ cup (~40g)"],["Salsa","2 tbsp (~30g)"],["Veggies","—"]]},
+    DIN[PLAN["Monday"]],
     {label:"Evening Snack",title:"PB Toast & Apple",tag:"Quick, quiet, satisfying.",cat:"to",p:11,c:50,f:14,k:370,
      ing:[["Multigrain toast","2 slices"],["Peanut butter","1.5 tbsp"],["Apple","1"]]},
   ],
@@ -193,28 +206,25 @@ const DATA = {
      ing:[["Bananas","2"],["Oats","40g"],["Protein","1 full scoop"],["Milk","200ml"],["Nuts","—"]]},
     {label:"Lunch",title:"Chicken Biryani",tag:"A classic, portioned with intent.",cat:"bw",p:36,c:80,f:20,k:640,
      ing:[["Chicken","100g"],["Biryani rice","1 cup"],["Raita","—"]]},
-    {label:"Dinner",title:"Chickpea & Paneer Salad",tag:"Crunchy, cool, protein-forward.",cat:"sl",p:25,c:38,f:18,k:410,
-     ing:[["Paneer","70g"],["Chickpeas","60g"],["Lettuce","—"],["Veggies","—"]]},
+    DIN[PLAN["Tuesday"]],
     {label:"Evening Snack",title:"Nuts & Fruit",tag:"Healthy fats, on the move.",cat:"sh",p:7,c:30,f:22,k:340,
      ing:[["Almonds","15"],["Walnuts","4"],["Apple","1"]]},
   ],
   Wednesday:[
-    {label:"Breakfast",title:"Mung Sprout Chaat & Toast",tag:"A savory start for a change.",cat:"to",p:20,c:58,f:10,k:400,
-     ing:[["Sprouts","—"],["Veggies","—"],["Toast","2 slices"],["Butter","1 tsp"]]},
-    {label:"Lunch",title:"Burrito Bowl",tag:"Loaded, balanced, built to last.",cat:"bw",p:42,c:78,f:12,k:580,
-     ing:[["Chicken","80g"],["Rajma","½ cup"],["Rice","1 cup"],["Hung curd","100g"],["Veggies","—"]]},
-    {label:"Dinner",title:"High-Protein Overnight Oats",tag:"Breakfast, reimagined for evening.",cat:"sm",p:38,c:72,f:14,k:560,
-     ing:[["Bananas","2"],["Oats","40g"],["Protein","1 full scoop"],["Milk","200ml"],["Chia","—"]]},
+    {label:"Breakfast",title:"Mung Sprout Chaat & Eggs",tag:"A savory start for a change.",cat:"bw",p:27,c:37,f:14,k:380,
+     ing:[["Sprouts","—"],["Veggies","—"],["Boiled eggs","2"]]},
+    {label:"Lunch",title:"Burrito Bowl",tag:"Loaded, balanced, built to last.",cat:"bw",p:43,c:88,f:12,k:625,
+     ing:[["Chicken","80g"],["Rajma","½ cup"],["Rice","1 cup"],["Hung curd","100g"],["Corn","¼ cup (~40g)"],["Salsa","2 tbsp (~30g)"],["Veggies","—"]]},
+    DIN[PLAN["Wednesday"]],
     {label:"Evening Snack",title:"PB Toast, Doubled",tag:"When one slice isn't enough.",cat:"to",p:12,c:30,f:18,k:330,
      ing:[["Toast","2 slices"],["Peanut butter","2 tbsp"]]},
   ],
   Thursday:[
-    {label:"Breakfast",title:"Kala Chana Chaat & Toast",tag:"Spiced, textured, grounding.",cat:"to",p:20,c:64,f:8,k:410,
-     ing:[["Kala chana","—"],["Veggies","—"],["Spices","—"],["Toast","2 slices"]]},
+    {label:"Breakfast",title:"Kala Chana Chaat & Eggs",tag:"Spiced, textured, grounding.",cat:"bw",p:27,c:43,f:16,k:425,
+     ing:[["Kala chana","—"],["Veggies","—"],["Spices","—"],["Boiled eggs","2"]]},
     {label:"Lunch",title:"Chole Rice",tag:"Comfort food, kept in check.",cat:"bw",p:44,c:82,f:18,k:670,
      ing:[["Chole","1 cup"],["Boiled eggs","2"],["Curd","100g"],["Rice","1 cup"],["Salad","—"]]},
-    {label:"Dinner",title:"Besan Cheela, Stuffed",tag:"Savory crepes, paneer-filled.",cat:"wr",p:24,c:52,f:16,k:450,
-     ing:[["Besan cheela","2 pcs"],["Paneer","50g"],["Veggies","—"]]},
+    DIN[PLAN["Thursday"]],
     {label:"Evening Snack",title:"Protein Shake & Banana",tag:"Simple recovery fuel.",cat:"sh",p:27,c:54,f:2,k:340,
      ing:[["Protein","1 full scoop, in water"],["Bananas","2"]]},
   ],
@@ -223,8 +233,7 @@ const DATA = {
      ing:[["Bananas","2"],["Oats","40g"],["Protein","1 full scoop"],["Milk","200ml"],["Nuts","—"]]},
     {label:"Lunch",title:"Paneer Bhurji Kulche",tag:"A hearty midday anchor.",cat:"wr",p:34,c:52,f:22,k:540,
      ing:[["Paneer","70g"],["Egg","1"],["Wheat kulcha","1"],["Salad","—"]]},
-    {label:"Dinner",title:"Muesli & Milk Bowl",tag:"Easy, unfussy, comforting.",cat:"bw",p:14,c:78,f:8,k:440,
-     ing:[["Muesli","50g"],["Bananas","2"],["Milk","200ml"]]},
+    DIN[PLAN["Friday"]],
     {label:"Evening Snack",title:"PB Toast",tag:"Quick, quiet, satisfying.",cat:"to",p:12,c:30,f:18,k:330,
      ing:[["Toast","2 slices"],["Peanut butter","2 tbsp"]]},
   ],
@@ -233,8 +242,7 @@ const DATA = {
      ing:[["Bananas","2"],["Oats","40g"],["Protein","1 full scoop"],["Milk","200ml"],["Nuts","—"]]},
     {label:"Lunch",title:"Vegetable Pulao",tag:"Textured, spiced, protein-packed.",cat:"bw",p:40,c:72,f:18,k:610,
      ing:[["Dry soy chunks","25g"],["Boiled eggs","2"],["Curd","100g"],["Rice","1 cup"],["Salad","—"]]},
-    {label:"Dinner",title:"Paneer & Veggie Sandwich",tag:"Light, fresh, no fuss.",cat:"wr",p:22,c:48,f:15,k:410,
-     ing:[["Paneer","70g"],["Veggies","—"],["Toast","2 slices"],["Pesto","—"]]},
+    DIN[PLAN["Saturday"]],
     {label:"Evening Snack",title:"PB Toast & Apple",tag:"Quick, quiet, satisfying.",cat:"to",p:11,c:48,f:14,k:360,
      ing:[["Toast","2 slices"],["Peanut butter","1.5 tbsp"],["Apple","1"]]},
   ],
@@ -243,18 +251,13 @@ const DATA = {
      ing:[["Bananas","2"],["Oats","40g"],["Protein","1 full scoop"],["Milk","200ml"],["Nuts","—"]]},
     {label:"Lunch",title:"Dal Rice",tag:"Home-style, unhurried comfort.",cat:"bw",p:34,c:75,f:20,k:610,
      ing:[["Paneer","70g"],["Dal","1 cup"],["Rice","1 cup"],["Sautéed spinach","—"],["Ghee","1 tsp"]]},
-    {label:"Dinner",title:"Besan Cheela, Stuffed",tag:"Savory crepes, paneer-filled.",cat:"wr",p:24,c:52,f:16,k:450,
-     ing:[["Besan cheela","2 pcs"],["Paneer","50g"],["Veggies","—"]]},
+    DIN[PLAN["Sunday"]],
     {label:"Evening Snack",title:"PB Toast & Apple",tag:"Quick, quiet, satisfying.",cat:"to",p:11,c:48,f:14,k:360,
      ing:[["Toast","2 slices"],["Peanut butter","1.5 tbsp"],["Apple","1"]]},
   ],
 };
-const TOTALS = {
-  Monday:{p:116,c:238,f:60,k:1950}, Tuesday:{p:106,n:"~110",c:216,f:74,k:1940},
-  Wednesday:{p:112,c:238,f:54,k:1870}, Thursday:{p:115,c:252,f:44,k:1870},
-  Friday:{p:98,n:"104 with egg",c:228,f:62,k:1860}, Saturday:{p:111,c:240,f:63,k:1960},
-  Sunday:{p:107,c:243,f:64,k:1970},
-};
+const TOTALS = {};
+for(const d in DATA) TOTALS[d] = DATA[d].reduce((a,m)=>({p:a.p+m.p,c:a.c+m.c,f:a.f+m.f,k:a.k+m.k}),{p:0,c:0,f:0,k:0});
 const DAYS = Object.keys(DATA), AB = DAYS.map(d=>d.slice(0,3));
 let day = "Monday", meal = 0; // meal 4 = Prep
 const $ = id => document.getElementById(id), root = document.documentElement;
@@ -267,8 +270,8 @@ const PREP = [
   {re:/^chana$|kala chana|chickpeas|^chole$/i, lead:1, act:n=>`Soak ${n.toLowerCase()} overnight`, note:'Soak 8+ hrs, then boil or pressure cook', tag:'Soak overnight'},
   {re:/hung curd/i, lead:1, act:()=>'Hang curd overnight', note:'Strain in muslin for 6–8 hrs, then refrigerate', tag:'Hang overnight'},
 ];
-const STOCK = /^(protein|oats|peanut butter|nuts|almonds|walnuts|muesli|chia|dry soy chunks|pesto|dal|rajma|chana|kala chana|chole|chickpeas|besan cheela)$/i;
-const FRESH = /^(chicken|paneer|boiled eggs|egg|multigrain toast|toast|wheat kulcha)$/i;
+const STOCK = /^(protein|oats|peanut butter|nuts|almonds|walnuts|muesli|chia|dry soy chunks|basil pesto|pesto|dal|rajma|chana|kala chana|chole|chickpeas|besan cheela|corn|salsa)$/i;
+const FRESH = /^(chicken|paneer|boiled eggs|eggs|egg|multigrain toast|toast|wheat kulcha)$/i;
 const when = l => l===0 ? 'today' : l===1 ? 'tomorrow' : `in ${l} days`;
 
 const TASKS = [], seen = {};
@@ -282,7 +285,7 @@ DAYS.forEach((d,di)=>DATA[d].forEach((m,mi)=>{
   m.ing.forEach(([n])=>{
     const r = PREP.find(r=>r.re.test(n));
     if(r) add(di, r.lead, 'prep', r.act(n), r.note, tgt);
-    const ty = STOCK.test(n) ? 2 : FRESH.test(n) ? 1 : 0, k = n.toLowerCase();
+    const ty = STOCK.test(n) ? 2 : FRESH.test(n) ? 1 : 0, k = /eggs?$/i.test(n) ? 'eggs' : n.toLowerCase();
     if(ty && !seen[k]){ seen[k] = 1; add(di, ty, 'order', null, null, tgt, n); }
   });
 }));
@@ -331,19 +334,20 @@ function render(){
       <p class="tagline">${m.tag}</p>
       <div class="hero">
         <div class="illus">${ICONS[m.cat]}</div>
-        <div class="pct">Covers <b>${Math.round(pct*100)}%</b> of the day's ${t.k} kcal.</div>
+        <div class="pct">Covers <b>${Math.round(pct*100)}%</b> of the day's ${t.k} kcal.${m.mic?`<br><span class="mic">${m.mic}</span>`:''}</div>
         <div class="ring-wrap">${ring(pct,H.hue)}<div class="num"><b>${m.k}</b><span>KCAL</span></div></div>
       </div>
       <div class="macros">
         <div class="macro" style="--bg:${H.hl};--fg:${H.bf}"><b>${m.p}g</b><span>Protein</span></div>
         <div class="macro" style="--bg:#E4DEF5;--fg:#372A5C"><b>${m.c}g</b><span>Carbs</span></div>
         <div class="macro" style="--bg:#FCE9C4;--fg:#5C3D0B"><b>${m.f}g</b><span>Fats</span></div>
+        ${m.fib?`<div class="macro" style="--bg:#D8F0DA;--fg:#1E5A2B"><b>${m.fib}g</b><span>Fibre</span></div>`:''}
       </div>
       <div class="section-head">Ingredients</div>
       <div class="ing-scroll">${m.ing.map(([name,amt])=>{
         const r = PREP.find(r=>r.re.test(name));
         return `<div class="ing-row"><span class="swatch"></span><span class="name">${name}</span>${r?`<span class="chip">${r.tag}</span>`:''}<span class="leader"></span><span class="amt">${amt}</span></div>`;
-      }).join('')}</div>`;
+      }).join('')}${m.note?`<div class="foot">${m.note}</div>`:''}</div>`;
   }
 
   $('weekTotal').innerHTML = `
