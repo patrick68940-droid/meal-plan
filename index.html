@@ -76,6 +76,7 @@ h1.title{font:600 26px/1.08 'Montserrat',sans-serif;margin:2px 0 3px;letter-spac
 
 .edit-btn{flex:none;font:700 11.5px/1 'Montserrat',sans-serif;color:var(--hue);background:var(--hue-l);
   border:none;border-radius:999px;padding:6px 12px;cursor:pointer;margin-left:auto;}
+.reset-btn{flex:none;font:700 11px/1 'Montserrat',sans-serif;color:#B8401F;background:none;border:none;cursor:pointer;text-decoration:underline;}
 
 #modal{position:fixed;inset:0;background:rgba(15,13,9,.55);display:none;align-items:flex-end;justify-content:center;z-index:50;}
 #modal.open{display:flex;}
@@ -423,7 +424,7 @@ function renderModal(){
   const t = totals(day);
   $('modal').innerHTML = `
     <div class="modal-panel">
-      <div class="modal-head"><h2 class="serif">${day}</h2><button class="edit-btn" id="modalClose">Done</button></div>
+      <div class="modal-head"><h2 class="serif">${day}</h2><span style="display:flex;gap:8px"><button class="reset-btn" id="modalReset">Reset week</button><button class="edit-btn" id="modalClose">Done</button></span></div>
       <div class="modal-total">
         <div><b>${t.k}</b><span>kcal</span></div><div><b>${t.p}g</b><span>protein</span></div>
         <div><b>${t.c}g</b><span>carbs</span></div><div><b>${t.f}g</b><span>fats</span></div><div><b>${t.fib}g</b><span>fibre</span></div>
@@ -442,10 +443,49 @@ function renderModal(){
       ? {label,title:NONE_TITLE,tag:'Removed — tap to add a meal back.',cat:'to',p:0,c:0,f:0,k:0,fib:0,ing:[]}
       : RECIPES[label].find(r=>r.title===val);
     DATA[day][i] = {...chosen, label};
+    saveState();
     renderModal();
   });
   $('modalClose').onclick = closeModal;
+  $('modalReset').onclick = resetState;
 }
+
+// --- Persistence: remember which recipe is in each slot across browser refreshes ---
+const STORE_KEY = 'weekly-meal-plan-v1';
+function saveState(){
+  try{
+    const plan = {};
+    DAYS.forEach(d=>{ plan[d] = DATA[d].map(m=>m.title); });
+    localStorage.setItem(STORE_KEY, JSON.stringify(plan));
+  }catch(e){}
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return;
+    const plan = JSON.parse(raw);
+    DAYS.forEach(d=>{
+      const titles = plan[d];
+      if(!titles) return;
+      DATA[d].forEach((m,i)=>{
+        const want = titles[i];
+        if(want == null || want === m.title) return;
+        if(want === NONE_TITLE){
+          DATA[d][i] = {label:m.label,title:NONE_TITLE,tag:'Removed — tap to add a meal back.',cat:'to',p:0,c:0,f:0,k:0,fib:0,ing:[]};
+          return;
+        }
+        const found = (RECIPES[m.label]||[]).find(r=>r.title===want);
+        if(found) DATA[d][i] = {...found, label:m.label};
+      });
+    });
+  }catch(e){}
+}
+function resetState(){
+  if(!confirm('Reset all your edits back to the original weekly plan?')) return;
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  location.reload();
+}
+loadState();
 render();
 </script>
 </body>
