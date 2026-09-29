@@ -52,7 +52,7 @@ h1.title{font:600 26px/1.08 'Montserrat',sans-serif;margin:2px 0 3px;letter-spac
 .hero .ring-wrap .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .hero .ring-wrap .num b{font:700 15px/1 'Montserrat',sans-serif;}
 .hero .ring-wrap .num span{font:600 8.5px/1 'Montserrat',sans-serif;color:var(--muted);}
-.hero .pct{margin-left:12px;font:400 14px/1.35 'Montserrat',sans-serif;color:#544d3c;max-width:180px;}
+.hero .pct{margin-left:12px;font:400 14px/1.35 'Montserrat',sans-serif;color:var(--ink);opacity:.7;max-width:180px;}
 .hero .pct b{color:var(--ink);font-weight:700;}
 
 .macros{display:flex;gap:8px;margin-bottom:10px;flex:none;}
@@ -68,15 +68,49 @@ h1.title{font:600 26px/1.08 'Montserrat',sans-serif;margin:2px 0 3px;letter-spac
 .ing-row .leader{flex:1;border-bottom:1px dotted var(--line);margin-bottom:3px;min-width:10px;}
 .ing-row .amt{font:600 13px/1 'Montserrat',sans-serif;color:var(--muted);white-space:nowrap;}
 
-.daytotal{flex:none;margin-top:10px;background:var(--ink);color:var(--paper);border-radius:16px;
+.daytotal{flex:none;margin-top:10px;background:#17150F;color:#F4EFE3;border-radius:16px;
   padding:12px 16px;display:flex;justify-content:space-between;align-items:flex-end;}
 .daytotal .lbl{font:600 12.5px/1 'Montserrat',sans-serif;color:#B8B2A0;margin-bottom:4px;}
 .daytotal .kcal{font:600 24px/1 'Montserrat',sans-serif;color:var(--hue,#C7DE3A);}
 .daytotal .macros2{text-align:right;font:500 13px/1.5 'Montserrat',sans-serif;color:#D8D3C4;}
 
+.edit-btn{flex:none;font:700 11.5px/1 'Montserrat',sans-serif;color:var(--hue);background:var(--hue-l);
+  border:none;border-radius:999px;padding:6px 12px;cursor:pointer;margin-left:auto;}
+
+#modal{position:fixed;inset:0;background:rgba(15,13,9,.55);display:none;align-items:flex-end;justify-content:center;z-index:50;}
+#modal.open{display:flex;}
+.modal-panel{background:var(--paper);width:100%;max-width:460px;max-height:88dvh;border-radius:22px 22px 0 0;
+  padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));overflow-y:auto;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.modal-head h2{font:800 20px/1 'Montserrat',sans-serif;margin:0;}
+.modal-total{display:flex;justify-content:space-between;background:#17150F;color:#F4EFE3;border-radius:14px;
+  padding:10px 4px;margin-bottom:16px;}
+.modal-total div{flex:1;text-align:center;}
+.modal-total b{display:block;font:700 15px/1.1 'Montserrat',sans-serif;color:#C7DE3A;}
+.modal-total span{font:600 9.5px/1 'Montserrat',sans-serif;color:#B8B2A0;}
+.slot{border-top:1px solid var(--line);padding:12px 0;}
+.slot:last-child{padding-bottom:2px;}
+.slot-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.slot-label{font:700 13.5px/1 'Montserrat',sans-serif;color:var(--muted);}
+.slot-macro{font:600 11.5px/1 'Montserrat',sans-serif;color:var(--muted);}
+.slot-select{width:100%;font:600 15px/1.3 'Montserrat',sans-serif;color:var(--ink);background:#fff;
+  border:1px solid var(--line);border-radius:10px;padding:9px 10px;-webkit-appearance:none;appearance:none;}
+
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){--paper:#141210;--line:#332F26;--ink:#F3EFE2;--muted:#948D78;}
+  :root:not([data-theme="light"]){--paper:#141210;--line:#332F26;--ink:#F3EFE2;--muted:#A69F8B;}
   .hero{background:linear-gradient(135deg,var(--hue-d,#2b241f),var(--paper) 85%);}
+  .hero .ring-wrap svg circle:first-child{stroke:#ffffff26;}
+  .day-btn.active{background:#2A2620;color:var(--hue);}
+  .meal-tab{border-color:#3A352B;color:#A69F8B;}
+  .meal-tab.active{color:#15130F;}
+  .macro{background:#221F19;}
+  .macro b,.macro span{color:var(--ink)!important;opacity:1;}
+  .chip{background:#2A2620;color:var(--hue);}
+  .badge{background:#2A2620;color:var(--hue);}
+  .badge.order{background:#3A2318;color:#F0916C;}
+  .task b{color:var(--ink);}
+  .dock{border-color:#3A352B;}
+  .slot-select{background:#221F19;border-color:#3A352B;}
 }
 
 :root{--dock:#fff}
@@ -128,6 +162,7 @@ h1.title{font:600 26px/1.08 'Montserrat',sans-serif;margin:2px 0 3px;letter-spac
   <div class="daytotal" id="weekTotal"></div>
   <div class="dock"><div class="daynav" id="days"></div><div class="mealnav" id="mealTabs"></div></div>
 </div>
+<div id="modal"></div>
 
 <script>
 const HUES = {
@@ -220,8 +255,8 @@ const DATA = {
      ing:[["Toast","2 slices"],["Peanut butter","2 tbsp"]]},
   ],
   Thursday:[
-    {label:"Breakfast",title:"Kala Chana Chaat & Eggs",tag:"Spiced, textured, grounding.",cat:"bw",p:27,c:43,f:16,k:425,
-     ing:[["Kala chana","—"],["Veggies","—"],["Spices","—"],["Boiled eggs","2"]]},
+    {label:"Breakfast",title:"Kala Chana Chaat & Peanuts",tag:"Spiced, textured, grounding.",cat:"bw",p:22,c:48,f:21,k:454,
+     ing:[["Kala chana","—"],["Veggies","—"],["Spices","—"],["Roasted peanuts","30g"]]},
     {label:"Lunch",title:"Chole Rice",tag:"Comfort food, kept in check.",cat:"bw",p:44,c:82,f:18,k:670,
      ing:[["Chole","1 cup"],["Boiled eggs","2"],["Curd","100g"],["Rice","1 cup"],["Salad","—"]]},
     DIN[PLAN["Thursday"]],
@@ -229,10 +264,10 @@ const DATA = {
      ing:[["Protein","1 full scoop, in water"],["Bananas","2"]]},
   ],
   Friday:[
-    {label:"Breakfast",title:"Overnight Oats",tag:"Simple ingredients, engineered nutrition.",cat:"sm",p:38,c:72,f:16,k:580,
-     ing:[["Bananas","2"],["Oats","40g"],["Protein","1 full scoop"],["Milk","200ml"],["Nuts","—"]]},
-    {label:"Lunch",title:"Paneer Bhurji Kulche",tag:"A hearty midday anchor.",cat:"wr",p:34,c:52,f:22,k:540,
-     ing:[["Paneer","70g"],["Egg","1"],["Wheat kulcha","1"],["Salad","—"]]},
+    {label:"Breakfast",title:"Muesli Bowl",tag:"Simple ingredients, engineered nutrition.",cat:"bw",p:36,c:68,f:7,k:480,
+     ing:[["Muesli","50g"],["Low-fat milk","200ml"],["Plant protein","1 scoop"],["Banana","1 medium"]]},
+    {label:"Lunch",title:"Egg Bhurji Kulche",tag:"A hearty midday anchor.",cat:"wr",p:34,c:48,f:23,k:545,
+     ing:[["Eggs","4 large"],["Onion-tomato masala","—"],["Wheat kulcha","1"],["Salad","—"]]},
     DIN[PLAN["Friday"]],
     {label:"Evening Snack",title:"PB Toast",tag:"Quick, quiet, satisfying.",cat:"to",p:12,c:30,f:18,k:330,
      ing:[["Toast","2 slices"],["Peanut butter","2 tbsp"]]},
@@ -256,10 +291,17 @@ const DATA = {
      ing:[["Toast","2 slices"],["Peanut butter","1.5 tbsp"],["Apple","1"]]},
   ],
 };
-const TOTALS = {};
-for(const d in DATA) TOTALS[d] = DATA[d].reduce((a,m)=>({p:a.p+m.p,c:a.c+m.c,f:a.f+m.f,k:a.k+m.k}),{p:0,c:0,f:0,k:0});
+// Day reorder: Saturday becomes a copy of Thursday; Friday and Sunday swap with each other.
+DATA.Saturday = DATA.Thursday.map(m=>({...m}));
+PLAN.Saturday = PLAN.Thursday;
+{ const f=DATA.Friday, u=DATA.Sunday, pf=PLAN.Friday, ps=PLAN.Sunday;
+  DATA.Friday=u; DATA.Sunday=f; PLAN.Friday=ps; PLAN.Sunday=pf; }
+function totals(d){
+  return DATA[d].reduce((a,m)=>({p:a.p+(+m.p||0),c:a.c+(+m.c||0),f:a.f+(+m.f||0),k:a.k+(+m.k||0),fib:a.fib+(+m.fib||0)}),{p:0,c:0,f:0,k:0,fib:0});
+}
 const DAYS = Object.keys(DATA), AB = DAYS.map(d=>d.slice(0,3));
-let day = "Monday", meal = 0; // meal 4 = Prep
+let day = "Monday", meal = 0, editMode = false; // meal 4 = Prep
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const $ = id => document.getElementById(id), root = document.documentElement;
 HUES.Prep = {hue:"#3D6BD6",hl:"#DCE6FB",hd:"#0E1A38",bf:"#1B2F66"};
 
@@ -270,27 +312,30 @@ const PREP = [
   {re:/^chana$|kala chana|chickpeas|^chole$/i, lead:1, act:n=>`Soak ${n.toLowerCase()} overnight`, note:'Soak 8+ hrs, then boil or pressure cook', tag:'Soak overnight'},
   {re:/hung curd/i, lead:1, act:()=>'Hang curd overnight', note:'Strain in muslin for 6–8 hrs, then refrigerate', tag:'Hang overnight'},
 ];
-const STOCK = /^(protein|oats|peanut butter|nuts|almonds|walnuts|muesli|chia|dry soy chunks|basil pesto|pesto|dal|rajma|chana|kala chana|chole|chickpeas|besan cheela|corn|salsa)$/i;
+const STOCK = /^(protein|plant protein|oats|roasted peanuts|peanut butter|nuts|almonds|walnuts|muesli|chia|dry soy chunks|basil pesto|pesto|dal|rajma|chana|kala chana|chole|chickpeas|besan cheela|corn|salsa)$/i;
 const FRESH = /^(chicken|paneer|boiled eggs|eggs|egg|multigrain toast|toast|wheat kulcha)$/i;
 const when = l => l===0 ? 'today' : l===1 ? 'tomorrow' : `in ${l} days`;
 
-const TASKS = [], seen = {};
-function add(di, lead, type, act, note, tgt, item){ TASKS.push({due:(di-lead+7)%7, lead, type, act, note, tgt, item}); }
-DAYS.forEach((d,di)=>DATA[d].forEach((m,mi)=>{
-  const tgt = {d:AB[di], m:m.label};
-  if(/overnight oats/i.test(m.title)){
-    const lead = mi===0 ? 1 : 0;
-    add(di, lead, 'prep', 'Mix overnight oats', lead ? 'Mix tonight and chill overnight' : 'Mix this morning and chill 6+ hrs', tgt);
-  }
-  m.ing.forEach(([n])=>{
-    const r = PREP.find(r=>r.re.test(n));
-    if(r) add(di, r.lead, 'prep', r.act(n), r.note, tgt);
-    const ty = STOCK.test(n) ? 2 : FRESH.test(n) ? 1 : 0, k = /eggs?$/i.test(n) ? 'eggs' : n.toLowerCase();
-    if(ty && !seen[k]){ seen[k] = 1; add(di, ty, 'order', null, null, tgt, n); }
-  });
-}));
+function buildTasks(){
+  const TASKS = [], seen = {};
+  const add = (di, lead, type, act, note, tgt, item) => TASKS.push({due:(di-lead+7)%7, lead, type, act, note, tgt, item});
+  DAYS.forEach((d,di)=>DATA[d].forEach((m,mi)=>{
+    const tgt = {d:AB[di], m:m.label};
+    if(/overnight oats/i.test(m.title)){
+      const lead = mi===0 ? 1 : 0;
+      add(di, lead, 'prep', 'Mix overnight oats', lead ? 'Mix tonight and chill overnight' : 'Mix this morning and chill 6+ hrs', tgt);
+    }
+    m.ing.forEach(([n])=>{
+      const r = PREP.find(r=>r.re.test(n));
+      if(r) add(di, r.lead, 'prep', r.act(n), r.note, tgt);
+      const ty = STOCK.test(n) ? 2 : FRESH.test(n) ? 1 : 0, k = /eggs?$/i.test(n) ? 'eggs' : n.toLowerCase();
+      if(ty && !seen[k]){ seen[k] = 1; add(di, ty, 'order', null, null, tgt, n); }
+    });
+  }));
+  return TASKS;
+}
 function tasksFor(di){
-  const t = TASKS.filter(x=>x.due===di);
+  const t = buildTasks().filter(x=>x.due===di);
   const out = t.filter(x=>x.type==='prep').map(x=>({...x, em:`For ${x.tgt.d} ${x.tgt.m} · ${when(x.lead)}`}));
   [[2,'Order pantry staples','Allow ~2 days for delivery'],[1,'Order fresh items','Order a day ahead']].forEach(([l,a,em])=>{
     const g = t.filter(x=>x.type==='order' && x.lead===l);
@@ -311,7 +356,7 @@ const tab = (i,l) => `<button class="meal-tab ${i===meal?'active':''}" data-i="$
 
 function render(){
   const di = DAYS.indexOf(day), isPrep = meal===4, m = isPrep ? null : DATA[day][meal];
-  const H = isPrep ? HUES.Prep : HUES[m.label], t = TOTALS[day], tk = tasksFor(di);
+  const H = isPrep ? HUES.Prep : HUES[m.label], t = totals(day), tk = tasksFor(di);
   root.style.setProperty('--hue',H.hue); root.style.setProperty('--hue-l',H.hl); root.style.setProperty('--hue-d',H.hd);
 
   $('days').innerHTML = DAYS.map(d=>`<button class="day-btn ${d===day?'active':''}" data-d="${d}">${d.slice(0,3)}</button>`).join('');
@@ -327,9 +372,11 @@ function render(){
           <div><b>${x.act}</b><i>${x.note}</i><em>${x.em}</em></div></div>`).join('') || '<div class="empty">You\'re clear today — nothing to prep or order.</div>'}
       </div>`;
   } else {
-    const pct = Math.min(1, m.k / t.k);
+    m.fib = +m.fib || 0;
+    const pct = Math.min(1, m.k / (t.k||1));
     $('sheet').innerHTML = `
-      <div class="kicker"><span class="dot"></span><span>${m.label} · Day ${di+1} of 7</span></div>
+      <div class="kicker"><span class="dot"></span><span>${m.label} · Day ${di+1} of 7</span>
+        <button class="edit-btn" id="editBtn">Edit day</button></div>
       <h1 class="title serif">${m.title}</h1>
       <p class="tagline">${m.tag}</p>
       <div class="hero">
@@ -344,10 +391,10 @@ function render(){
         ${m.fib?`<div class="macro" style="--bg:#D8F0DA;--fg:#1E5A2B"><b>${m.fib}g</b><span>Fibre</span></div>`:''}
       </div>
       <div class="section-head">Ingredients</div>
-      <div class="ing-scroll">${m.ing.map(([name,amt])=>{
+      <div class="ing-scroll">${m.ing.length? m.ing.map(([name,amt])=>{
         const r = PREP.find(r=>r.re.test(name));
         return `<div class="ing-row"><span class="swatch"></span><span class="name">${name}</span>${r?`<span class="chip">${r.tag}</span>`:''}<span class="leader"></span><span class="amt">${amt}</span></div>`;
-      }).join('')}${m.note?`<div class="foot">${m.note}</div>`:''}</div>`;
+      }).join('') : '<div class="empty">No meal in this slot — tap Edit day to add one.</div>'}${m.note?`<div class="foot">${m.note}</div>`:''}</div>`;
   }
 
   $('weekTotal').innerHTML = `
@@ -356,6 +403,48 @@ function render(){
 
   $('days').querySelectorAll('.day-btn').forEach(b=>b.onclick=()=>{day=b.dataset.d; render();});
   $('mealTabs').querySelectorAll('.meal-tab').forEach(b=>b.onclick=()=>{meal=+b.dataset.i; render();});
+
+  if(!isPrep){
+    const eb = $('editBtn');
+    if(eb) eb.onclick = openModal;
+  }
+}
+
+// --- Day-plan editor: swap or remove which recipe fills each of the day's 4 slots ---
+const RECIPES = {};
+DAYS.forEach(d=>DATA[d].forEach(m=>{
+  (RECIPES[m.label] = RECIPES[m.label] || []);
+  if(!RECIPES[m.label].some(r=>r.title===m.title)) RECIPES[m.label].push(m);
+}));
+const NONE_TITLE = "— No meal —";
+function openModal(){ $('modal').classList.add('open'); renderModal(); }
+function closeModal(){ $('modal').classList.remove('open'); render(); }
+function renderModal(){
+  const t = totals(day);
+  $('modal').innerHTML = `
+    <div class="modal-panel">
+      <div class="modal-head"><h2 class="serif">${day}</h2><button class="edit-btn" id="modalClose">Done</button></div>
+      <div class="modal-total">
+        <div><b>${t.k}</b><span>kcal</span></div><div><b>${t.p}g</b><span>protein</span></div>
+        <div><b>${t.c}g</b><span>carbs</span></div><div><b>${t.f}g</b><span>fats</span></div><div><b>${t.fib}g</b><span>fibre</span></div>
+      </div>
+      <div class="modal-slots">${DATA[day].map((m,i)=>{
+        const opts = (RECIPES[m.label]||[]).map(r=>`<option value="${esc(r.title)}" ${r.title===m.title?'selected':''}>${esc(r.title)}</option>`).join('');
+        return `<div class="slot">
+          <div class="slot-head"><span class="slot-label">${m.label}</span><span class="slot-macro">${m.k} kcal · ${m.p}P ${m.c}C ${m.f}F</span></div>
+          <select class="slot-select" data-i="${i}">${opts}<option value="__none__" ${m.title===NONE_TITLE?'selected':''}>${NONE_TITLE}</option></select>
+        </div>`;
+      }).join('')}</div>
+    </div>`;
+  $('modal').querySelectorAll('.slot-select').forEach(sel=>sel.onchange=e=>{
+    const i = +e.target.dataset.i, label = DATA[day][i].label, val = e.target.value;
+    const chosen = val==='__none__'
+      ? {label,title:NONE_TITLE,tag:'Removed — tap to add a meal back.',cat:'to',p:0,c:0,f:0,k:0,fib:0,ing:[]}
+      : RECIPES[label].find(r=>r.title===val);
+    DATA[day][i] = {...chosen, label};
+    renderModal();
+  });
+  $('modalClose').onclick = closeModal;
 }
 render();
 </script>
